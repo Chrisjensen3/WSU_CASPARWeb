@@ -1,0 +1,498 @@
+﻿@page
+@model CASPARWeb.Areas.Coord.Pages.BuildSchedule.UpsertModel
+@{
+}
+<div class="card shadow border-0 mt-4 col-12 mx-auto">
+	<div class="card-header bg-secondary bg-gradient ml-0 py-3">
+		<div class="row">
+			<div class="col-12 text-center">
+				<h2 class="text-primary py-2">@(Model.objCourseSection.Id != 0 ? "Update " : "Add ") Course Section for @Model.objSemesterInstance.SemesterInstanceName</h2>
+				@if (Model.objCourse.Id != 0)
+                {
+					<h5>@Model.objAcademicProgram.ProgramCode @Model.objCourse.CourseNumber @Model.objCourse.CourseTitle</h5>
+                }
+			</div>
+		</div>
+	</div>
+
+	
+		<div class="card-body row">
+
+		
+		<!--Student Report-->
+		<div class="col-3">
+			<div class="card">
+				<div class="card-header">
+					<h5>Student Report</h5>
+					@if (Model.objCourse.Id != 0)
+					{
+                        <p>Number of Students in Report: @Model.StudentCount</p>
+                    }
+				</div>
+				<div class="card-body">
+					<div class="row py-2">
+						<div class="col-12">
+							<label><h6>Modalities</h6></label>
+							<hr />
+							<div class="col-12 px-2" id="modalities">
+								@foreach (var modality in Model.StudentModalityList.OrderByDescending(x => Model.ModalityCount.ContainsKey(x.Id) ? Model.ModalityCount[x.Id] : 0))
+								{
+									<div class="d-flex justify-content-between">
+										<label>@modality.ModalityName</label>
+										@if (Model.ModalityCount.ContainsKey(modality.Id))
+										{
+											<span> @Model.ModalityCount[modality.Id]</span>
+										}
+										else
+										{
+											<span> 0</span>
+										}
+									</div>
+								}
+							</div>
+						</div>
+
+						<div class="col-12 pt-4">
+							<label><h6>Part of Day</h6></label>
+							<hr />
+							<div class="col-12 px-2" id="partofdays">
+								@foreach (var partOfDay in Model.PartOfDayList.OrderByDescending(x => Model.PartOfDayCount.ContainsKey(x.Id) ? Model.PartOfDayCount[x.Id] : 0))
+								{
+									<div class="d-flex justify-content-between">
+										<label>@partOfDay.PartOfDayValue</label>
+										@if (Model.PartOfDayCount.ContainsKey(partOfDay.Id))
+										{
+											<span> @Model.PartOfDayCount[partOfDay.Id]</span>
+										}
+										else
+										{
+											<span> 0</span>
+										}
+									</div>
+								}
+							</div>
+						</div>
+
+						<div class="col-12 pt-4">
+							<label><h6>Campuses</h6></label>
+							<hr />
+							<div class="col-12 px-2" id="campuses">
+								@foreach (var campus in Model.CampusList.OrderByDescending(x => Model.CampusCount.ContainsKey(x.Id) ? Model.CampusCount[x.Id] : 0))
+								{
+									<div class="d-flex justify-content-between">
+										<label>@campus.CampusName</label>
+										@if (Model.CampusCount.ContainsKey(campus.Id))
+										{
+											<span> @Model.CampusCount[campus.Id]</span>
+										}
+										else
+										{
+											<span> 0</span>
+										}
+									</div>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--Form-->
+		<div class="col-9 mx-0">
+			<!--Instructor Report-->
+			@if (Model.objCourse.Id != 0)
+			{
+			<div class="mb-2">
+				<div class="card overflow-auto" >
+					<div class="card-header">
+						<h5>Instructor Report</h5>
+						@if (Model.objCourse.Id != 0)
+						{
+							<p>Number of Instructors in Report: @Model.instructorReport.Count</p>
+						}
+					</div>
+
+						<div class="table-responsive overflow-auto" style=" height: 300px;">
+						<table class="table table-striped">
+							<thead>
+								<tr>
+									<th scope="col">Rank</th>
+									<th scope="col">Name</th>
+									<th scope="col">Load</th>
+										<th scope="col" stlye="align: center"></th>
+
+								</tr>
+							</thead>
+							<tbody>
+								@for (int i = 0; i < Model.instructorReport.Count; i++) {
+										<tr data-bs-toggle="collapse" data-bs-target="#collapseAssigned@(i)" aria-expanded="false" aria-controls="collapseExample">
+											<th scope="row">@Model.instructorReport[i].ranking</th>
+											<td>
+												@Model.instructorReport[i].wishlist.ApplicationUser.FullName
+												
+												
+										</td>
+											<td class="m-0 p-0">@Model.instructorReport[i].totalLoadApplied/@Model.instructorReport[i].loadReqAmount</td>
+											<td>
+												<i class="bi bi-arrows-expand"></i>
+											</td>
+										</tr>
+												<tr>
+													<td colspan="4"  >
+														<div class="row">
+															<div class="collapse col-6" id="collapseAssigned@(i)">
+															<div class="row no-gutters border-bottom">
+																<div class="col text-center">
+																	<strong>Assigned Courses</strong>
+																</div>
+															</div>
+														@if (Model.instructorReport[i].assignedCourses.Count > 0 && Model.instructorReport[i].assignedCourses != null) {
+															@for (int l = 0; l < Model.instructorReport[i].assignedCourses.Count; l++)
+															{
+																<div class="col-9 mb-2">
+																	<div class="row no-gutters">
+																		<div class="col">
+																			<!--course name && credit hours-->
+																			<strong>@Model.instructorReport[i].assignedCourses[l].Course.CourseTitle (@Model.instructorReport[i].assignedCourses[l].Course.CourseCreditHours)</strong>
+																		</div>
+
+																	</div>
+																	<div class="row no-gutters">
+
+																		<div class="col">
+																			<!--campus name-->
+																			@if (Model.instructorReport[i].assignedCourses[l].Classroom != null && Model.instructorReport[i].assignedCourses[l].Classroom.Building != null && Model.instructorReport[i].assignedCourses[l].Classroom.Building.Campus != null) {
+																			@Model.instructorReport[i].assignedCourses[l].Classroom.Building.Campus.CampusName
+																			} else {
+
+																			}
+																			
+																		</div>
+																		<div class="col">
+																			<!--modality name-->
+																			@if (Model.instructorReport[i].assignedCourses[l].Modality != null) {
+																				@Model.instructorReport[i].assignedCourses[l].Modality.ModalityName
+																			} else {
+
+																			}
+																		</div>
+																	</div>
+																	<div class="row no-gutters">
+
+																		<div class="col">
+																			<!--building name-->
+																			@if (Model.instructorReport[i].assignedCourses[l].Classroom != null && Model.instructorReport[i].assignedCourses[l].Classroom.Building != null) {
+																				@Model.instructorReport[i].assignedCourses[l].Classroom.Building.BuildingName
+																			} else {
+
+																			}
+
+																		</div>
+																		<div class="col">
+																			<!--days-->
+																			@if (Model.instructorReport[i].assignedCourses[l].DaysOfWeek != null) {
+																				@Model.instructorReport[i].assignedCourses[l].DaysOfWeek.DaysOfWeekValue
+																			} else {
+
+																			}
+
+																		</div>
+
+																	</div>
+																	<div class="row no-gutters">
+																		<div class="col">
+																			<!--classroom #-->
+																			@if (Model.instructorReport[i].assignedCourses[l].Classroom != null) {
+																				@Model.instructorReport[i].assignedCourses[l].Classroom.ClassroomNumber
+																			} else {
+
+																			}
+																			
+																		</div>
+																		<div class="col">
+																			<!--time block-->
+																			@if (Model.instructorReport[i].assignedCourses[l].TimeBlock != null) {
+																			@Model.instructorReport[i].assignedCourses[l].TimeBlock.TimeBlockValue
+																			} else {
+
+																			}
+
+																		</div>
+																	</div>
+
+																</div>
+															}
+														} else {
+															<div class="row no-gutters ">
+																<div class="col text-center">
+																	-No Assigned Courses-
+																</div>
+															</div>
+														}
+													</div>
+
+															<div class="collapse col-6" id="collapseAssigned@(i)">
+																<div class="row no-gutters">
+																	<div class="col text-center border-bottom">
+																		<strong>Course Preferences</strong>
+																	</div>
+																</div>
+																<div class="row">
+																	<div class="card card-body border-0 col-3 p-1 m-0">
+																		@for (int t = 0; t < Model.instructorReport[i].modalityList.Count; t++) {
+																			<div class="row">@Model.instructorReport[i].modalityList[t]</div>
+																		}
+																	</div>
+																	<div class="card card-body border-0 col-3 p-1 m-0">
+																		@for (int t = 0; t < Model.instructorReport[i].timeList.Count; t++) {
+																			<div class="row">@Model.instructorReport[i].timeList[t]</div>
+																		}
+																	</div>
+																	<div class="card card-body border-0 col-3 p-1 m-0">
+																		@for (int t = 0; t < Model.instructorReport[i].weekDayList.Count; t++) {
+																			<div class="row">@Model.instructorReport[i].weekDayList[t]</div>
+																		}
+																	</div>
+																	<div class="card card-body border-0 col-3 p-1 m-0">
+																		@for (int t = 0; t < Model.instructorReport[i].locationList.Count; t++) {
+																			<div class="row">@Model.instructorReport[i].locationList[t]</div>
+																		}
+																	</div>
+																</div>
+															</div>
+														</div>
+													</td>
+												</tr>
+
+
+								}
+							</tbody>
+						</table>
+
+					</div>
+				</div> <!--Close Container-->
+			</div>
+			}
+
+			<div class="mb-2">
+				<div class="border p-3">
+					<form method="post" class="row">
+						<input type="hidden" asp-for="objCourseSection.Id">
+						<input type="hidden" asp-for="objCourseSection.SemesterInstanceId">
+						<input asp-for="objCourseSection.SectionUpdated" type="hidden" class="form-control border-0 shadow" />
+						<input asp-for="objCourseSection.SectionBannerUpdated" type="hidden" class="form-control border-0 shadow" />
+
+						<div class="row">
+							<div class="form-group">
+								<label class="form-label mt-2">Course</label>
+								@if (Model.objCourseSection.Id != null && Model.objCourseSection.Id != 0)
+								{
+									<select disabled id="ddlCourse" asp-for="objCourseSection.CourseId" asp-items="@Model.CourseList" class="form-select shadow">
+										<option disabled selected>--Select Course--</option>
+									</select>
+									<input type="hidden" asp-for="objCourseSection.CourseId">
+								}
+								else {
+									<select id="ddlCourse" asp-for="objCourseSection.CourseId" asp-items="@Model.CourseList" class="form-select shadow">
+										<option disabled selected>--Select Course--</option>
+									</select>
+								}
+									
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group col-3">
+								<label class="form-label mt-2">Instructor</label>
+								<select id="ddlInstructor" asp-for="objCourseSection.InstructorId" asp-items="@Model.InstructorList" class="form-select shadow">
+									<option disabled selected>--Select Instructor--</option>
+								</select>
+							</div>
+							<div class="form-group col-3">
+								<label class="form-label mt-2">Part Of Term</label>
+								<select id="ddlPartOfTerm" asp-for="objCourseSection.PartOfTermId" asp-items="@Model.PartOfTermList" class="form-select shadow">
+									<option disabled selected>--Select Part of the Term--</option>
+								</select>
+							</div>
+							<div class="form-group col-3">
+								<label class="form-label mt-2">Pay Model</label>
+								<select id="ddlPayModel" asp-for="objCourseSection.PayModelId" asp-items="@Model.PayModelList" class="form-select shadow">
+									<option disabled selected>--Select Pay Model--</option>
+								</select>
+							</div>
+							<div class="form-group col-3">
+								<label class="form-label mt-2">Pay Organization</label>
+								<select id="ddlPayOrganization" asp-for="objCourseSection.PayOrganizationId" asp-items="@Model.PayOrganizationList" class="form-select shadow">
+									<option disabled selected>--Select Pay Organization--</option>
+								</select>
+							</div>
+						</div>
+						<div class="row">
+							<div class="form-group col-3">
+								<label class="form-label mt-2">Modality</label>
+								<select id="ddlModality" asp-for="objCourseSection.ModalityId" asp-items="@Model.ModalityList" class="form-select shadow" onchange="hideOrShowModalityOptions()">
+									<option disabled selected>--Select Modality--</option>
+								</select>
+							</div>
+							<div class="form-group col-3 hideByModality" style="display:none">
+								<label class="form-label mt-2">Campus</label>
+								<select id="ddlCampus" asp-items="@Model.SCampusList" class="form-select shadow" onchange="showBuildings()">
+									<option disabled selected>--Select Campus--</option>
+								</select>
+							</div>
+							<div class="form-group col-3 hideByModality" style="display:none">
+								<label class="form-label mt-2">Building</label>
+								<select id="ddlBuilding" asp-items="@Model.SBuildingList" class="form-select shadow" onchange=showClassrooms()>
+									<option disabled selected>--Select Building--</option>
+								</select>
+							</div>
+							<div class="form-group col-3 hideByModality" style="display:none">
+								<label class="form-label mt-2">Classroom</label>
+								<select id="ddlClassroom" asp-for="objCourseSection.ClassroomId" asp-items="@Model.ClassroomList" class="form-select shadow">
+									<option disabled selected>--Select Classroom--</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="row mt-3 mb-3">
+							<div class="form-group col-6">
+								<div class="row">
+									<div class="form-group col-6 hideByModality" style="display:none">
+										<label class="form-label mt-2">Day Of The Week</label>
+										<select id="ddlDaysOfWeek" asp-for="objCourseSection.DaysOfWeekId" asp-items="@Model.DaysOfWeekList" class="form-select shadow">
+											<option disabled selected>--Select Day of the Week--</option>
+										</select>
+									</div>
+									<div class="form-group col-6 hideByModality" style="display:none">
+										<label class="form-label mt-2">Time Slot</label>
+										<select id="ddlTimeBlock" asp-for="objCourseSection.TimeBlockId" asp-items="@Model.TimeBlockList" class="form-select shadow">
+											<option disabled selected>--Select Time Slot--</option>
+										</select>
+									</div>
+								</div>
+								<div class="row">
+									<div class="form-group col-6">
+										<label class="form-label">BannerCRN</label>
+										<input asp-for="objCourseSection.BannerCRN" class="form-control border-0 shadow" />
+									</div>
+									<div class="form-group col-6">
+										<label class="form-label">Section Status</label>
+										<select id="ddlSectionStatus" asp-for="objCourseSection.SectionStatusId" asp-items="@Model.SectionStatusList" class="form-select shadow">
+											<option disabled selected>--Select Section Status--</option>
+										</select>
+									</div>
+								</div>
+								<div class="row mt-2">
+									<div class="form-group col-6">
+										<label class="ms-2">First Day Enrollment</label>
+										<input asp-for="objCourseSection.SectionFirstDayEnrollment" type="date" class="form-control border-0 shadow" />
+									</div>
+									<div class="form-group col-6">
+										<label class="ms-2">Final Day Enrollment</label>
+										<input asp-for="objCourseSection.SectionFinalEnrollment" type="date" class="form-control border-0 shadow" />
+									</div>
+								</div>
+							</div>
+							<div class="form-group col-6">
+								<label class="form-label">Section Notes</label>
+								<textarea asp-for="objCourseSection.SectionNotes" class="form-control border-0 shadow" style="height: 85%"></textarea>
+							</div>
+						</div>
+						
+
+						<div class="row pt-2">
+							<div class="col-6">
+								<button type="submit" class="btn btn-primary form-control">@(Model.objCourseSection.Id != 0 ? "Update " : "Add ")</button>
+							</div>
+							<div class="col-6">
+								<a href="/Coord/BuildSchedule/Sections?semesterInstanceId=@Model.objSemesterInstance.Id" class=" btn btn-outline-primary border form-control">
+									Back to List
+								</a>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+</div>
+@section Scripts{
+	<script>
+		$(document).ready(function () {
+			//Set the visibility of the modality options based on modality
+			let modality = $('#ddlModality option:selected').text()
+			if (modality == 'Online' || modality == '--Select Modality--') {
+				
+			}
+			else {
+					$('.hideByModality').show();
+			}
+		});
+
+		function hideOrShowModalityOptions() {
+				console.log($('#ddlModality option:selected').text())
+			if ($('#ddlModality option:selected').text() == 'Online') {
+				$('.hideByModality').hide();
+			}
+			else {
+				$('.hideByModality').show();
+			}
+		}
+
+		function showBuildings() {
+			var campus = document.getElementById("ddlCampus").value;
+			var buildingOptions = document.getElementById("ddlBuilding").options;
+				$("#ddlBuilding").prop("selectedIndex", 0);
+				$("#ddlClassroom").prop("selectedIndex", 0);
+			for (var i = 0; i < buildingOptions.length; i++) {
+				if (buildingOptions[i].value.includes(campus)) {
+					buildingOptions[i].style.display = "block";
+				} else {
+					buildingOptions[i].style.display = "none";
+				}
+			}
+		}
+		function showClassrooms() {
+			var building = $('#ddlBuilding option:selected').text();
+			var classroomOptions = document.getElementById("ddlClassroom").options;
+				$("#ddlClassroom").prop("selectedIndex", 0);
+			for (var i = 0; i < classroomOptions.length; i++) {
+				if (classroomOptions[i].innerText.includes(building)) {
+					classroomOptions[i].style.display = "block";
+				} else {
+					classroomOptions[i].style.display = "none";
+				}
+			}
+		}
+
+		//Sort the options for the Courses
+		var select = document.getElementById("ddlCourse");
+		var defaultOption = document.createElement("option");
+		defaultOption.text = "--Select Course--";
+		defaultOption.disabled = true;
+		select.appendChild(defaultOption);
+		var selectedValue = select.value;
+		var options = Array.from(select.options);
+		options.shift(); // Remove the disabled option from the array
+		options.sort((a, b) => a.text.localeCompare(b.text));
+		select.innerHTML = ""; // Clear the select element
+		options.forEach((option) => {
+			select.appendChild(option);
+		});
+		select.value = selectedValue; // Set the selected value back
+
+		//Sort the options for the Time Blocks
+		var select = document.getElementById("ddlTimeBlock");
+		var defaultOption = document.createElement("option");
+		defaultOption.text = "--Select Time Slot--";
+		defaultOption.disabled = true;
+		select.appendChild(defaultOption);
+		var selectedValue = select.value;
+		var options = Array.from(select.options);
+		options.shift(); // Remove the disabled option from the array
+		options.sort((a, b) => a.text.localeCompare(b.text));
+		select.innerHTML = ""; // Clear the select element
+		options.forEach((option) => {
+			select.appendChild(option);
+		});
+		select.value = selectedValue; // Set the selected value back
+	</script>
+}

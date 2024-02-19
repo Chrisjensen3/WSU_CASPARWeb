@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+@using Utility;
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CASPAR</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/CASPARWeb.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.28/dist/sweetalert2.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-primary border-bottom box-shadow mb-3">
+            <div class="container">
+                <a class="navbar-brand text-light" asp-area="" asp-page="/Index">CASPAR</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (User.IsInRole(SD.STUDENT_ROLE))
+                        {
+                            <li>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle text-light rounded me-1" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Student
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li><a class="dropdown-item" asp-area="Stud" asp-page="/Wishlists/Index">Schedule Preferences</a></li>
+                                        <!-- Add more dropdown items as needed -->
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+                        @if (User.IsInRole(SD.INSTRUCTOR_ROLE))
+                        {
+                            <li>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle text-light rounded me-1" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Instructor
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li><a class="dropdown-item" asp-area="Instr" asp-page="/Wishlists/Index">Schedule Preferences</a></li>
+                                        <!-- Add more dropdown items as needed -->
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+                        @if (User.IsInRole(SD.ADMIN_ROLE))
+                        {
+                            <li>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle text-light rounded me-1" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Administrator
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Semesters/Index">Semester Templates</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/SemesterInstances/Index">Semesters</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/PartOfTerms/Index">Part of Terms</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/LoadRequirements/Index">Instructor Load Requirements</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/ReleaseTimes/Index">Instructor Release Times</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/PayModels/Index">Pay Models</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/PayOrganizations/Index">Pay Organizations</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Campuses/Index">Campus</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Buildings/Index">Buildings</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Classrooms/Index">Classrooms</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Amenity/Index">Classroom Amenities</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/AcademicPrograms/Index">Academic Programs</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Courses/Index">Courses</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Modalities/Index">Modalities</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/SectionStatuses/Index">Section Statuses</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/DaysOfWeeks/Index">Days</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/TimeBlocks/Index">Time Slots</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/PartOfDays/Index">Part of Days</a></li>
+                                        <div class="dropdown-divider"></div>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Users/Index">Users</a></li>
+                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Roles/Index">Roles</a></li>
+                                        <!-- Add more dropdown items as needed -->
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+                        @if (User.IsInRole(SD.PROGRAM_COORDINATOR_ROLE))
+                        {
+                            <li>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle text-light rounded me-1" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Program Coordinator
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li><a class="dropdown-item" asp-area="Coord" asp-page="/BuildSchedule/Index">Semester Schedule</a></li>
+                                        <!-- Add more dropdown items as needed -->
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+                        @if (User.IsInRole(SD.SECRETARY_ROLE))
+                        {
+                            <li>
+                                <div class="dropdown">
+                                    <button class="btn dropdown-toggle text-light rounded me-1" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Secretary
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                        <li><a class="dropdown-item" href="#">Edit Schedule</a></li>
+                                        <!-- Add more dropdown items as needed -->
+                                    </ul>
+                                </div>
+                            </li>
+                        }
+                        <li class="nav-item rounded">
+                            <a class="nav-link text-light" asp-page="/About">About</a>
+                        </li>
+                        
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            <partial name="_ToastrNotification" />
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2023 - CASPARWeb - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.28/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.tiny.cloud/1/5o7kd48vin7zz2m5l483c0r5r85aacqm6svlbo3ruibreswa/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

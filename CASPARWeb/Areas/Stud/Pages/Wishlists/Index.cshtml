@@ -1,0 +1,275 @@
+﻿@page
+@using System.Security.Claims;
+@model CASPARWeb.Areas.Stud.Pages.Wishlists.IndexModel
+@{
+}
+@* <input type="hidden" asp-for="WishlistId"> *@
+<div class="container">
+	<div class="row pt=4">
+		<!--Start Row-->
+		<div class="col-4">
+			<!--50% of row-->
+			<h2 class="text-primary">
+				Student Preferences
+			</h2>
+		</div><!-- End 1st Column-->
+		<div class="col-3 text-end">
+			<!--25% row right justified-->
+			<span style="display:none" id="selectedSemesterId">@(Model.SelectedSemesterId != 0 ? Model.SelectedSemesterId : "0")</span>
+			<select id="ddlSemesterInstance" class="form-select rounded">
+			</select>
+		</div> <!--End 2nd Column-->
+	</div> <!--End Row-->
+	<div id="accordion">
+		<div class="card">
+			<a class="btn-primary" data-bs-toggle="collapse" href="#collapseOne" style="text-decoration: none;">
+				<div class="card-header">
+					<h5>Details</h5>
+				</div>
+			</a>
+			<div id="collapseOne" class="collapse show" data-bs-parent="#accordion">
+				<div class="card-body">
+					<div class="row pt=4">
+						<form method="post" class="row">
+							<div class="col-1">
+							</div>
+
+							<div class="col-2">
+								<label><h6>Modalities</h6></label>
+								<hr />
+								<input type="hidden" asp-for="objWishlist.Id">
+								<div class="col-12 px-2" id="modalities">
+									@foreach (var modality in Model.ModalityList)
+									{
+										<div>
+											<input class="form-check-input modality-checkbox" onchange="updateCheckboxModality()" type="checkbox" value="@modality.ModalityName" @(Model.AttachedModalityList.Contains(modality.ModalityName) ? "checked" : "") />
+											<label>@modality.ModalityName</label>
+										</div>
+									}
+								</div>
+								<input type="hidden" id="modalityArrayInput" asp-for="returnedAttachedModality" value="" />
+							</div>
+
+							<div class="col-1">
+							</div>
+
+							<div class="col-2">
+								<label><h6>Part of Day</h6></label>
+								<hr />
+								<div class="col-12 px-2" id="partsOfDay">
+									@foreach (var partOfDay in Model.PartOfDayList)
+									{
+										<div>
+											<input class="form-check-input" onchange="updateCheckboxPartOfDay()" type="checkbox" value="@partOfDay.PartOfDayValue" @(Model.AttachedPartOfDayList.Contains(partOfDay.PartOfDayValue) ? "checked" : "") />
+											<label>@partOfDay.PartOfDayValue</label>
+										</div>
+									}
+								</div>
+								<input type="hidden" id="partOfDayArrayInput" asp-for="returnedAttachedPartOfDay" value="" />
+							</div>
+
+							<div class="col-1">
+							</div>
+
+							<div class="col-4">
+								<label><h6>Campuses</h6></label>
+								<hr />
+								<div class="col-12 px-2" id="campuses">
+									@foreach (var campus in Model.CampusList)
+									{
+										<div>
+											<input class="form-check-input" onchange="updateCheckboxCampus()" type="checkbox" value="@campus.CampusName" @(Model.AttachedCampusList.Contains(campus.CampusName) ? "checked" : "") />
+											<label>@campus.CampusName</label>
+										</div>
+									}
+								</div>
+								<input type="hidden" id="campusArrayInput" asp-for="returnedAttachedCampus" value="" />
+							</div>
+
+							<div class="col-1">
+							</div>
+							<br />
+							<div style="display: flex; justify-content: center; width: 50%; margin: auto;">
+								<button type="submit" asp-page-handler="checkBoxes" asp-route-selectedSemesterId="@Model.SelectedSemesterId" class="btn btn-outline-primary rounded form-control">Submit</button>
+							</div>
+
+						</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="card">
+			<a class="btn-primary" data-bs-toggle="collapse" href="#collapseTwo" style="text-decoration: none;">
+				<div class="card-header">
+					<h5>Courses</h5>
+				</div>
+			</a>
+			<div id="collapseTwo" class="collapse show" data-bs-parent="#accordion">
+					<div class="row p-3">
+						<!--Start Row-->
+						<form class="row" method="post">
+							<div class="col-5">
+								<select id="ddlTemplateCourses" name="selectedCourse" class="form-select rounded">
+								</select>
+							</div>
+							<div class="col-2">
+								<button type="submit" onclick="return ValidateInput(event)" asp-page-handler="add" asp-route-selectedSemesterId="@Model.SelectedSemesterId" asp-route-selectedCourse="@Model.SelectedCourse" class="btn btn-outline-primary rounded" id="btnAddCourse"><i class="bi bi-plus-circle"></i></button>
+							</div>
+						</form>
+					</div> <!--End Row-->
+
+
+					<table class="table table-bordered table-striped p-3" id="T_WishlistCourses" style="width:100%">
+						
+					</table>
+			</div>
+		</div>
+	</div>
+</div> <!--Close Container-->
+	@section Scripts{
+		<script>
+			function updateCheckboxModality() {
+				//get all "checked" checkbox values
+				var checkboxes = document.querySelectorAll('.modality-checkbox');
+				var checkedValues = [];
+				var partsOfDay = document.querySelectorAll('#partsOfDay .form-check-input');
+				var campuses = document.querySelectorAll('#campuses .form-check-input');
+
+				// Loop through each checkbox
+				checkboxes.forEach(function (checkbox) {
+					if (checkbox.checked) {
+						console.log(checkbox.value);
+						checkedValues.push(checkbox.value);
+					}
+				});
+
+				// If no modalities are selected or if "Online" is the only selected modality, disable the time blocks, days of week, and campuses
+				if (checkedValues.length == 0 || (checkedValues.length == 1 && checkedValues[0] == "Online")) {
+					partsOfDay.forEach(function (partOfDay) {
+						partOfDay.disabled = true;
+					});
+					campuses.forEach(function (campus) {
+						campus.disabled = true;
+					});
+				}
+				else if ((checkedValues.length == 1 && checkedValues[0] == "Virtual") || (checkedValues.length == 2 && checkedValues[0] == "Online" && checkedValues[1] == "Virtual")) {
+					partsOfDay.forEach(function (partOfDay) {
+						partOfDay.disabled = false;
+					});
+					campuses.forEach(function (campus) {
+						campus.disabled = true;
+					});
+				}
+				else {
+					// If any other modalities are selected, enable the time blocks, days of week, and campuses
+					partsOfDay.forEach(function (partOfDay) {
+						partOfDay.disabled = false;
+					});
+					campuses.forEach(function (campus) {
+						campus.disabled = false;
+					});
+				}
+
+				console.log("Checked Boxes: " + checkedValues.length);
+				//generate the comma separated return list
+				var returnList = "";
+				for (var i = 0; i < checkedValues.length; i++) {
+					returnList = returnList + checkedValues[i];
+					if (i < checkedValues.length - 1) {
+						returnList = returnList + ",";
+					}
+				}
+				document.getElementById('modalityArrayInput').value = returnList;
+				//if the list is empty set the return string to '_'
+				if (checkedValues.length == 0) {
+					document.getElementById('modalityArrayInput').value = "_";
+				}
+				console.log("Return string: " + document.getElementById('modalityArrayInput').value);
+			}
+
+			window.onload = updateCheckboxModality;
+
+			function updateCheckboxPartOfDay() {
+				//get all "checked" checkbox values
+				var checkboxes = document.querySelectorAll('.form-check-input');
+				var checkedValues = [];
+				console.log("");
+
+				//swal.fire('Error', 'TEST', 'error');
+				// Loop through each checkbox
+				checkboxes.forEach(function (checkbox) {
+					if (checkbox.checked) {
+						console.log(checkbox.value);
+						checkedValues.push(checkbox.value);
+					}
+				});
+				console.log("Checked Boxes: " + checkedValues.length);
+				//generate the comma separated return list
+				var returnList = "";
+				for (var i = 0; i < checkedValues.length; i++) {
+					returnList = returnList + checkedValues[i];
+					if (i < checkedValues.length - 1) {
+						returnList = returnList + ",";
+					}
+				}
+				document.getElementById('partOfDayArrayInput').value = returnList;
+				//if the list is empty set the return string to '_'
+				if (checkedValues.length == 0) {
+					document.getElementById('partOfDayArrayInput').value = "_";
+				}
+				console.log("Return string: " + document.getElementById('partOfDayArrayInput').value);
+			}
+
+			function ValidateInput(event) {
+				if (document.getElementById('ddlTemplateCourses').value == "") {
+					swal.fire('Error', 'Please Select a Course', 'error');
+					return false;
+				}
+				return true;
+
+			}
+
+			function updateCheckboxCampus() {
+				//get all "checked" checkbox values
+				var checkboxes = document.querySelectorAll('.form-check-input');
+				var checkedValues = [];
+				console.log("");
+
+				//swal.fire('Error', 'TEST', 'error');
+				// Loop through each checkbox
+				checkboxes.forEach(function (checkbox) {
+					if (checkbox.checked) {
+						console.log(checkbox.value);
+						checkedValues.push(checkbox.value);
+					}
+				});
+				console.log("Checked Boxes: " + checkedValues.length);
+				//generate the comma separated return list
+				var returnList = "";
+				for (var i = 0; i < checkedValues.length; i++) {
+					returnList = returnList + checkedValues[i];
+					if (i < checkedValues.length - 1) {
+						returnList = returnList + ",";
+					}
+				}
+				document.getElementById('campusArrayInput').value = returnList;
+				//if the list is empty set the return string to '_'
+				if (checkedValues.length == 0) {
+					document.getElementById('campusArrayInput').value = "_";
+				}
+				console.log("Return string: " + document.getElementById('campusArrayInput').value);
+			}
+			function ValidateInput(event) {
+				if (document.getElementById('ddlTemplateCourses').value == "") {
+					swal.fire('Error', 'Please Select a Course', 'error');
+					return false;
+				}
+				return true;
+
+			}
+		</script>
+		<script type="text/javascript">
+			var userId = '@User.FindFirstValue(ClaimTypes.NameIdentifier)';
+		</script>
+		<script src="~/js/students.js"></script>
+	}
